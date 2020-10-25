@@ -742,6 +742,30 @@ public:
         }
         return ret;
     }
+
+    // Problem # 1389
+    vector<int> createTargetArray(vector<int>& nums, vector<int>& index) {
+        vector<int> target;
+        for(int i=0;i<index.size();i++)
+        {
+            target.insert(target.begin()+index[i],nums[i]);
+        }
+        return target;
+    }
+
+    // Problem # 1365
+    vector<int> smallerNumbersThanCurrent(vector<int>& nums) {
+        vector <int> cnt(101, 0);
+        for (int i : nums) cnt [i] ++;
+        vector <int> ret{};
+        for (int i : nums)
+        {
+            int count{0};
+            for (int j=0; j<i; j++) count += cnt[j];
+            ret.push_back(count);
+        }
+        return ret;
+    }
 };
 
 int main(int argc, char** argv)
@@ -749,12 +773,16 @@ int main(int argc, char** argv)
     time_t t = clock();
     Solution s;
     // ====== test ==================================================
+
+    vector <int> a{9, 2, 4, 5, 1}, b{2, 1, 0, 3, 4};
+    vector <int> re = s.createTargetArray(a, b);
+
     vector <int> A{1, 2, 3, 4, 5, 1};
     int longestM = s.longestMountain(A);
     cout << "Longest Mountain: " << longestM << endl;
 
-    vector<vector<int>> a{{0, 2}, {4, 8}};
-    int ans = s.videoStitching(a, 5);
+    vector<vector<int>> c{{0, 2}, {4, 8}};
+    int ans = s.videoStitching(c, 5);
     cout << ans;
     // ====== test ==================================================
     cout << endl << (double) (clock() - t) / CLOCKS_PER_SEC << endl;

@@ -702,6 +702,46 @@ public:
                 mat[size-1-i][size-1-j] = temp;
             }
     }
+
+    // Problem Solving # 1024
+    int videoStitching(vector<vector<int>>& clips, int T) {
+        int size = clips.size();
+        vector <int> ret(T+1, -1);
+        ret[0] = 0;
+        for (int i=1; i<=T; i++)
+            for (int j=0; j<size; j++)
+                if (clips[j][0]<i && clips[j][1]>=i)
+                    ret[i] = ret[i] == -1 ? ret[clips[j][0]] + 1 : min(ret[i], ret[clips[j][0]] + 1);
+        return ret[T] ? ret[T] : -1;
+    }
+
+    // Problem Solving # 845
+    int longestMountain(vector<int>& A) {
+        int size = A.size();
+        int lptr{0}, rptr{0};
+        int ret{0};
+        while (lptr < size - 2)
+        {
+            rptr = lptr + 1;
+            if (A[lptr+1] > A[lptr])
+            {
+                while (rptr < size - 1 && A[rptr+1] > A[rptr])
+                {
+                    rptr++;
+                }
+                if (rptr < size - 1 && A[rptr+1] < A[rptr])
+                {
+                    while (rptr < size - 1 && A[rptr+1] < A[rptr])
+                    {
+                        rptr++;
+                    }
+                    ret = max(ret, rptr-lptr+1);
+                }
+            }
+            lptr = rptr;
+        }
+        return ret;
+    }
 };
 
 int main(int argc, char** argv)
@@ -709,17 +749,13 @@ int main(int argc, char** argv)
     time_t t = clock();
     Solution s;
     // ====== test ==================================================
-    vector<vector<int>> a {{1, 2, 3, 4}, {5, 6, 7, 8}, {9, 10, 11, 12}, {13, 14, 15, 16}};
-    s.rotate(a);
-    for (vector<int> row : a)
-    {
-        for (int num : row)
-        {
-            cout << num << " ";
-        }
-        cout << endl;
-    }
+    vector <int> A{1, 2, 3, 4, 5, 1};
+    int longestM = s.longestMountain(A);
+    cout << "Longest Mountain: " << longestM << endl;
 
+    vector<vector<int>> a{{0, 2}, {4, 8}};
+    int ans = s.videoStitching(a, 5);
+    cout << ans;
     // ====== test ==================================================
     cout << endl << (double) (clock() - t) / CLOCKS_PER_SEC << endl;
     return 0;

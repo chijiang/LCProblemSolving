@@ -766,6 +766,93 @@ public:
         }
         return ret;
     }
+    
+    // Problem # 1313
+    vector<int> decompressRLElist(vector<int>& nums) {
+        vector <int> ret;
+        for (int i=0, j=1; j<nums.size(); i+=2, j+=2)
+        {
+            for (int cnt=0; cnt<nums[i]; cnt++)
+            {
+                ret.push_back(nums[j]);
+            }
+        }
+        return ret;
+    }
+
+    // Problem # 1290
+    int getDecimalValue(ListNode* head) {
+        int ret{0};
+        ListNode* temp = head;
+        while(temp != nullptr)
+        {
+            ret = ret*2 + temp->val;
+            temp = temp->next;
+        }
+        return ret;
+    }
+
+    // Problem # 1588
+    int sumOddLengthSubarrays(vector<int>& arr) {
+        int sum{0};
+        for (int n=1; n <= arr.size(); n+=2)
+        {
+            for (int i=0; i<arr.size(); i++)
+            {
+                int fac = min(i+1, n);
+                fac = min((int)arr.size()-i, fac);
+                fac = min((int)arr.size()+1-n, fac);
+                sum += fac * arr[i];
+            }
+        }
+        return sum;
+    }
+
+    // Problem # 144
+    void preOrder(TreeNode* node, vector <int>& list)
+    {
+        if (node == nullptr) return;
+        preOrder(node->left, list);
+        list.push_back(node->val);
+        preOrder(node->right, list);
+    }
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> ret{};
+        if (root == nullptr) return ret;
+        stack<TreeNode*> speicher;
+        TreeNode* node = root;
+        while (!speicher.empty() || node != nullptr)
+        {
+            while (node != nullptr)
+            {
+                ret.emplace_back(node->val);
+                speicher.emplace(node);
+                node = node->left;
+            }
+            node = speicher.top();
+            speicher.pop();
+            node = node->right;
+        }
+        return ret;
+    }
+
+    int numberOfSteps (int num) {
+        int ret{0};
+        while (num > 0)
+        {
+            if (num % 2 == 0) num /=2;
+            else num -= 1;
+            ret ++;
+        }
+        return ret;
+    }
+
+    // Problem # 1480
+    vector<int> runningSum(vector<int>& nums) {
+        for (int i=1; i<nums.size(); i++)
+            nums[i] += nums[i-1];
+        return nums;
+    }
 };
 
 int main(int argc, char** argv)
@@ -773,17 +860,16 @@ int main(int argc, char** argv)
     time_t t = clock();
     Solution s;
     // ====== test ==================================================
+    TreeNode root(1);
+    root.left = new TreeNode(2);
+    root.right = new TreeNode(3);
+    root.left->left = new TreeNode(4);
+    root.left->right = new TreeNode(5);
+    root.right->right = new TreeNode(6);
+    vector<int> ans = s.preorderTraversal(&root);
 
-    vector <int> a{9, 2, 4, 5, 1}, b{2, 1, 0, 3, 4};
-    vector <int> re = s.createTargetArray(a, b);
-
-    vector <int> A{1, 2, 3, 4, 5, 1};
-    int longestM = s.longestMountain(A);
-    cout << "Longest Mountain: " << longestM << endl;
-
-    vector<vector<int>> c{{0, 2}, {4, 8}};
-    int ans = s.videoStitching(c, 5);
-    cout << ans;
+    vector <int> nnn{};
+    vector <int> aaa = s.runningSum(nnn);
     // ====== test ==================================================
     cout << endl << (double) (clock() - t) / CLOCKS_PER_SEC << endl;
     return 0;

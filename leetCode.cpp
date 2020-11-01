@@ -8,6 +8,7 @@
 #include <queue>
 #include <stack>
 #include <algorithm>
+#include <random>
 
 using namespace std;
 
@@ -26,6 +27,77 @@ struct ListNode {
     ListNode() : val(0), next(nullptr) {}
     ListNode(int x) : val(x), next(nullptr) {}
     ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+class ParkingSystem {
+public:
+    int _big, _medium, _small;
+    ParkingSystem(int big, int medium, int small) {
+        _big = big;
+        _medium = medium;
+        _small = small;
+    }
+    
+    bool addCar(int carType) {
+        switch (carType)
+        {
+        case 1:
+            if (_big > 0) _big--;
+            else return false;
+            break;
+        case 2:
+            if (_medium > 0) _medium--;
+            else return false;
+            break;
+        case 3:
+            if (_small > 0) _small--;
+            else return false;
+            break;
+        }
+        return true;
+    }
+};
+
+class RandomizedCollection {
+private:
+    unordered_map<int, unordered_set<int>> index;
+    vector<int> collection;
+public:
+    /** Initialize your data structure here. */
+    RandomizedCollection() {
+
+    }
+    
+    /** Inserts a value to the collection. Returns true if the collection did not already contain the specified element. */
+    bool insert(int val) {
+        collection.emplace_back(val);
+        index[val].insert(collection.size()-1);
+        return index[val].size()==1;
+    }
+    
+    /** Removes a value from the collection. Returns true if the collection contained the specified element. */
+    bool remove(int val) {
+        if (index.find(val) == index.end()) {
+            return false;
+        }
+        int idx = *(index[val].begin());
+        collection[idx] = collection.back();
+        index[val].erase(idx);
+        index[collection[idx]].erase(collection.size() - 1);
+        if (idx < collection.size() - 1) {
+            index[collection[idx]].insert(idx);
+        }
+        if (index[val].size() == 0) {
+            index.erase(val);
+        }
+        collection.pop_back();
+        return true;
+    }
+    
+    /** Get a random element from the collection. */
+    int getRandom() {
+        return collection[rand() % collection.size()];
+    }
 };
 
 class Node {
@@ -853,24 +925,379 @@ public:
             nums[i] += nums[i-1];
         return nums;
     }
+
+    bool uniqueOccurrences(vector<int>& arr) {
+        unordered_set<int> set;
+        sort(arr.begin(), arr.end());
+        int count{0}, rem{arr[0]};
+        for (int i=0; i<arr.size(); i++)
+        {
+            if (arr[i] == rem) count++;
+            else if (set.count(count))
+                return false;
+            else
+            {
+                set.insert(count);
+                count = 1;
+                rem = arr[i];
+            }   
+        }
+        return !set.count(count);
+    }
+
+    // Problem # 94
+    void inOrder(TreeNode* node, vector<int>& list)
+    {
+        if (node == nullptr) return;
+        inOrder(node->left, list);
+        inOrder(node->right, list);
+        list.emplace_back(node->val);
+    }
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector <int> ret;
+        stack <TreeNode*> stk;
+        TreeNode* tmp = root;
+        while (tmp != nullptr || !stk.empty())
+        {
+            if (tmp != nullptr)
+            {
+                stk.emplace(tmp);
+                tmp = tmp->left;
+            }
+            else
+            {
+                tmp = stk.top();
+                stk.pop();
+                ret.emplace_back(tmp->val);
+                tmp = tmp->right;
+            }
+        }
+        return ret;
+    }
+
+    string reverseLeftWords(string s, int n) {
+        string ret;
+        for (int i=n; i<s.length(); i++) ret.push_back(s[i]);
+        for (int i=0; i<n; i++) ret.push_back(s[i]);
+        return ret;
+    }
+
+    vector<int> swapNumbers(vector<int>& numbers) {
+        numbers[0] = numbers[1] ^ numbers[0];
+        numbers[1] = numbers[0] ^ numbers[1];
+        numbers[0] = numbers[1] ^ numbers[0];
+        return numbers;
+    }
+
+    int diagonalSum(vector<vector<int>>& mat) {
+        int ret{0};
+        for (int i=0; i<mat.size()/2; i++)
+        {
+            int symIdx = mat.size()-i-1;
+            ret += mat[i][i];
+            ret += mat[i][symIdx];
+            ret += mat[symIdx][i];
+            ret += mat[symIdx][symIdx];
+        }
+        if (mat.size()%2==1) ret+=mat[mat.size()/2][mat.size()/2];
+        return ret;
+    }
+
+    int numSquares(int n) {
+        vector <int> dp(n+1, INT32_MAX);
+        dp[0] = 0;
+        for (int i=1; i<=n; i++)
+        {
+            for (int j=1; j<=sqrt(i); j++)
+            {
+                dp[i] = min(dp[i], dp[i-j*j]+1);
+            }
+        }
+        return dp[n];
+    }
+
+    int dfsSN(TreeNode* node, int preSum)
+    {
+        if (node == nullptr) return 0;
+        int sum = preSum*10 + node->val;
+        if (node->left==nullptr && node->right==nullptr)
+            return sum;
+        else
+            return dfsSN(node->right, sum) +  dfsSN(node->left, sum);
+    }
+    int sumNumbers(TreeNode* root) {
+        return dfsSN(root, 0);
+    }
+
+    vector<ListNode*> listOfDepth(TreeNode* tree) {
+        vector<ListNode*> ret;
+        queue<TreeNode*> vNode;
+        vNode.emplace(tree);
+        while(!vNode.empty())
+        {
+            ListNode* head = nullptr, *temp=new ListNode();
+            int loop = vNode.size();
+            for (int i=0; i<loop; i++)
+            {
+                auto p = vNode.front();
+                vNode.pop();
+                if (p) 
+                {
+                    temp->next = new ListNode(p->val);
+                    temp = temp->next;
+                    if (head==nullptr) head = temp;
+                    if (p->left)
+                        vNode.emplace(p->left);
+                    if (p->right)
+                        vNode.emplace(p->right);
+                }
+            }
+            ret.emplace_back(head);
+        }
+        return ret;
+    }
+
+    int islandPerimeter(vector<vector<int>>& grid) {
+        int cnt{0};
+        for (int i = 0; i < grid.size(); i++)
+        {
+            for (int j=0; j<grid[0].size(); j++)
+            {
+                if (j == 0 && grid[i][j]) cnt++;
+                if (i == 0 && grid[i][j]) cnt++;
+                if (j == grid[0].size()-1)
+                {
+                    if (grid[i][j]) cnt++;
+                }
+                else if (grid[i][j] - grid[i][j+1]) cnt++;
+                if (i == grid.size()-1)
+                {
+                    if(grid[i][j]) cnt++;
+                }
+                else if (grid[i+1][j]-grid[i][j]) cnt++;
+            }
+        }
+        return cnt;
+    }
+
+    bool isValidSudoku(vector<vector<char>>& board) {
+        unordered_set<char> row, box1, box2, box3;
+        vector<unordered_set<char>> cols(9);
+        for (int i=0; i<9; i++)
+        {
+            for (int j=0; j<9; j++)
+            {
+                if (board[i][j] == '.') continue;
+                if (cols[j].count(board[i][j])) return false;
+                cols[j].insert(board[i][j]);
+                if (j<3)
+                {
+                    if (box1.count(board[i][j])) return false;
+                    box1.insert(board[i][j]);
+                }
+                else if (j<6)
+                {
+                    if (box2.count(board[i][j])) return false;
+                    box2.insert(board[i][j]);
+                }
+                else if (j<9)
+                {
+                    if (box3.count(board[i][j])) return false;
+                    box3.insert(board[i][j]);
+                }
+                if (row.count(board[i][j])) return false;
+                    row.insert(board[i][j]);
+            }
+            row.clear();
+            if (i == 2 || i==5)
+            {box1.clear(); box2.clear(); box3.clear();}
+        }
+        return true;
+    }
+
+
+    int findRep(string s)
+    {
+        unordered_map<char, int> mp;
+        for (char c : s)
+        {
+            if (!mp.count(c)) mp.insert(pair<char, int>(c, 1));
+            else mp[c] ++;
+        }
+        int ret{INT32_MAX};
+        for (auto t : mp) ret = min(ret, t.second);
+        return ret;
+    }
+    vector<int> numSmallerByFrequency(vector<string>& queries, vector<string>& words) {
+        vector <int> wdSet;
+        for (string c : words) wdSet.emplace_back(findRep(c));
+        vector <int> ret;
+        for (string c : queries)
+        {
+            int cnt = findRep(c);
+            int cont{0};
+            for (int i : wdSet)
+                if (cnt < i) cont ++;
+            ret.emplace_back(cont);
+        }
+        return ret;
+    }
+
+    vector<int> constructArray(int n, int k) {
+        vector<int> ret;
+        ret.emplace_back(1);
+        int fac = 1;
+        for (int i=k; i>0; i--)
+        {
+            int val = ret.back()+fac*i;
+            fac = -fac;
+            ret.emplace_back(val);
+        }
+        for (int i=2+k; i<=n; i++) ret.emplace_back(i);
+        return ret;
+    }
+
+    int countOdds(int low, int high) {
+        return low%2==0? (high-low)/2+2 : (high-low)/2;
+    }
+
+    bool lemonadeChange(vector<int>& bills) {
+        vector<int> wallet(2,0);
+        for (int i: bills)
+        {
+            switch (i)
+            {
+            case 5:
+                wallet[0]++;
+                break;
+            case 10:
+                if (!wallet[0]) return false;
+                wallet[1]++;
+                wallet[0]--;
+                break;
+            case 20:
+                if (!wallet[1])
+                {
+                    if (wallet[0]<3) return false;
+                    wallet[0] -= 3;
+                }
+                else
+                {
+                    if (!wallet[0]) return false;
+                    wallet[0]--;
+                    wallet[1]--;
+                }
+                break;
+            }
+        }
+        return true;
+    }
+
+    vector<int> nodeL;
+    void traBST(TreeNode* node)
+    {
+        if (node==nullptr) return;
+        nodeL.push_back(node->val);
+        traBST(node->left);
+        traBST(node->right);
+    }
+    int minDiffInBST(TreeNode* root) {
+        traBST(root);
+        sort(nodeL.begin(), nodeL.end());
+        int diffMin{INT32_MAX};
+        for (int i=0; i<nodeL.size()-1; i++) diffMin = min(diffMin, nodeL[i+1]-nodeL[i]);
+        return diffMin;
+    }
+
+    vector<vector<int>> imageSmoother(vector<vector<int>>& M) {
+        int m = M.size(), n = M.front().size();
+        vector<vector<int>> result(m, vector<int>(n));
+        for (int i = 0; i < m; ++i)
+            for (int j = 0; j < n; ++j)
+            {
+                int num = 0, sum = 0;
+                for (int _i = max(0, i-1); _i <= min(m-1, i+1); ++_i)
+                    for (int _j = max(0, j-1); _j <= min(n-1, j+1); ++_j)
+                    {
+                        sum += M[_i][_j];
+                        ++num;
+                    }
+                result[i][j] = sum / num;
+            }
+        return result;
+    }
+
+    int dayOfYear(string date) {
+        vector <int> monthDays{31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31};
+        int year{0}, month{0}, day{0};
+        for (int i=0; i<4; i++)
+            year = year*10 + (date[i] - '0');
+        for (int i=5; i<7; i++)
+            month = month*10 + (date[i] - '0');
+        for (int i=8; i<10; i++)
+            day = day*10 + (date[i] - '0');
+        if (year%4 == 0 && year%100 != 0 || year%400 == 0) monthDays[1]++;
+        for (int i=1; i<monthDays.size(); i++) monthDays[i] += monthDays[i-1];
+        return month == 1 ? day : monthDays[month-2] + day;
+    }
+    
+    // Problem # 394
+    string decodeString(string s) {
+        
+    }
+
+    vector<int> intersection(vector<int>& nums1, vector<int>& nums2) {
+        unordered_set<int> set{}, inters{};
+        for (int i: nums1) set.insert(i);
+        for (int i : nums2)
+            if (set.count(i))
+                inters.insert(i);
+        vector<int> ret;
+        while (!inters.empty())
+        {
+            ret.emplace_back(*inters.begin());
+            inters.erase(*inters.begin());
+        }
+        return ret;
+    }
 };
 
 int main(int argc, char** argv)
 {
+
     time_t t = clock();
     Solution s;
     // ====== test ==================================================
-    TreeNode root(1);
-    root.left = new TreeNode(2);
-    root.right = new TreeNode(3);
-    root.left->left = new TreeNode(4);
-    root.left->right = new TreeNode(5);
-    root.right->right = new TreeNode(6);
-    vector<int> ans = s.preorderTraversal(&root);
 
-    vector <int> nnn{};
-    vector <int> aaa = s.runningSum(nnn);
+    cout << s.dayOfYear("2020-02-01") << endl;
+
+    TreeNode h(71);
+    h.left = new TreeNode(62);
+    h.right = new TreeNode(84);
+    h.left->left = new TreeNode(14);
+    h.right->right = new TreeNode(88);
+    int ans = s.minDiffInBST(&h);
+ 
+    vector<vector<char>> a = {{'.','.','4', '.','.','.', '6','3','.'},
+                              {'.','.','.', '.','.','.', '.','.','.'},
+                              {'5','.','.', '.','.','.', '.','9','.'},
+
+                              {'.','.','.', '5','6','.', '.','.','.'},
+                              {'4','.','3', '.','.','.', '.','.','1'},
+                              {'.','.','.', '7','.','.', '.','.','.'},
+
+                              {'.','.','.', '5','.','.', '.','.','.'},
+                              {'.','.','.', '.','.','.', '.','.','.'},
+                              {'.','.','.', '.','.','.', '.','.','.'}};
+    std::cout << "ans" << s.isValidSudoku(a) << endl;
+
+
+    RandomizedCollection rc;
+    bool r = rc.insert(1);
+    r = rc.remove(1);
+    r = rc.insert(1);
+    cout << rc.getRandom() << ' ' << rc.getRandom() << ' ' << rc.getRandom() << endl;
     // ====== test ==================================================
-    cout << endl << (double) (clock() - t) / CLOCKS_PER_SEC << endl;
+    std::cout << endl << (double) (clock() - t) / CLOCKS_PER_SEC << endl;
     return 0;
 }

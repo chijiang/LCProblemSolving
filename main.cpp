@@ -4,6 +4,75 @@
 
 using namespace std;
 
+class HashNode
+{   
+public:
+    int val{NULL};
+    int key{NULL};
+    HashNode* next;
+    HashNode(int _key, int _val) : key(_key), val(_val), next(nullptr){}
+    HashNode() : key(NULL), val(NULL), next(nullptr){}
+    HashNode(int _key, int _val, HashNode* _next) : key(_key), val(_val), next(_next) {}
+};
+class MyHashMap {
+private:
+    vector <HashNode*> bucket;
+    const int BUCKET_SIZE = 10007;
+public:
+    /** Initialize your data structure here. */
+    MyHashMap() {
+        bucket = vector <HashNode*>(BUCKET_SIZE, nullptr);
+    }
+    
+    /** value will always be non-negative. */
+    void put(int key, int value) {
+        int index = key % BUCKET_SIZE;
+        if (bucket[index] == nullptr) bucket[index] = new HashNode(key, value);
+        else
+        {
+            HashNode* temp = bucket[index];
+            while (temp->next != nullptr) 
+            {
+                if (temp->key == key) 
+                {
+                    temp->val = value;
+                    return;
+                }
+                temp = temp->next;
+            }
+            if (temp->key == key) temp->val = value;
+            else temp->next = new HashNode(key, value);
+        }
+    }
+    
+    /** Returns the value to which the specified key is mapped, or -1 if this map contains no mapping for the key */
+    int get(int key) {
+        int index = key % BUCKET_SIZE;
+        HashNode* temp = bucket[index];
+        while (temp != nullptr)
+        {
+            if (temp->key == key) return temp->val;
+            temp->next = temp;
+        }
+        return -1;
+    }
+    
+    /** Removes the mapping of the specified value key if this map contains a mapping for the key */
+    void remove(int key) {
+        int index = key % BUCKET_SIZE;
+        HashNode* temp = bucket[index];
+        while (temp != nullptr)
+        {
+            if (temp->key == key)
+            {
+                temp->val = -1;
+                break;
+            }
+            temp->next = temp;
+        }
+    }
+};
+
 class Solution
 {
     public:
@@ -97,8 +166,6 @@ class Solution
             for (int i = str.size() - 1; i >= 0; i--) revStr.push_back(str[i]);
             return str.size() - recFindLCS(str, revStr);
         }
-
-
 };
 
 int main(int argc, char** argv)
@@ -106,6 +173,16 @@ int main(int argc, char** argv)
     Solution s;
     string str = "12336";
     cout << s.altBuildPalindrome(str) << endl;
+
+    MyHashMap* my_map = new MyHashMap();
+    my_map->put(1,1);
+    my_map->put(10008,2);
+    my_map->get(1);
+    my_map->get(3);
+    my_map->put(10008,1);
+    my_map->get(2);
+    my_map->remove(2);
+    my_map->get(2);
 
     return 0;
 }

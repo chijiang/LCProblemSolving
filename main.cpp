@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 #include <algorithm>
+#include <math.h>
 
 using namespace std;
 
@@ -211,6 +212,62 @@ public:
         return arr;
     }
 
+    // Prob solving # 5
+    string longestPalindrome(string s)
+    {
+        string ret;
+        size_t size = s.size();
+        // Create a matrix to save the palindromes checking results, 
+        // in which, (i, j) indicates the starting pos and 
+        // the end pos.
+        vector<vector<bool>> dp(size, vector<bool>(size)); 
+        // Retr the different length of the sub string.
+        for (int length = 0; length < size; length ++)
+        {
+            // Finding the starting and ending pos index
+            for (int i = 0; i + length < size ; i ++)
+            {
+                int j = i + length;
+                // When the substring has a length of 1 (Param@length = 0)
+                if (length == 0) dp[i][j] = 1;
+                // If the substring contains two letters, comp them.
+                else if (length == 1) dp[i][j] = s[i] == s[j];
+                else
+                {
+                    // If the first letter and the last letter are the same,
+                    // the checking result of the substring should be identical
+                    // to its substring, which removes a single head and 
+                    // a single tail letter.
+                    dp[i][j] = s[i] == s[j] && dp[i+1][j-1];
+                }
+                // Update the result.
+                if (dp[i][j] && length + 1 > ret.size())
+                {
+                    ret = s.substr(i, length+1);
+                }
+            }
+        }
+        return ret;
+    }
+
+    vector<vector<int>> kClosest(vector<vector<int>>& points, int K) {
+        unordered_map <int, vector<vector<int>>> pSet;
+        vector<int> minDis;
+        for (auto point : points)
+        {
+            int dis = point[0]*point[0] + point[1]*point[1];
+            minDis.emplace_back(dis);
+            pSet[dis].emplace_back(point);
+        }
+        sort(minDis.begin(), minDis.end());
+        vector <vector<int>> ret;
+        for (int i=0; ret.size() < K; i++)
+        {
+            for (auto point : pSet[minDis[i]])
+                ret.emplace_back(point);
+        }
+        return ret;
+    }
 };
 
 int main(int argc, char** argv)
@@ -239,8 +296,15 @@ int main(int argc, char** argv)
     for (int i : abc) cout << i << " ";
     cout << endl;
 
-    vector <int> ans1 = s.sortByBit({1, 2, 3, 4, 5});
+    vector <int> sBBinput {1, 2, 3, 4, 5};
+    vector <int> ans1 = s.sortByBit(sBBinput);
     for (int z : ans1) cout << z << " ";
     cout << endl;
+
+    cout << s.longestPalindrome("cdbsbd") << endl;
+
+    vector <vector <int>> points{{1, 3}, {-2, 2}};
+    vector <vector <int>> clP = s.kClosest(points, 1);
+    for (auto point : clP) for (auto val : point) cout << val << " ";
     return 0;
 }

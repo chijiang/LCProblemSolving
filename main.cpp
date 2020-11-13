@@ -340,8 +340,33 @@ public:
         return arr1;
     }
 
+    int nodeCnt;
+    void findNodeCount(TreeNode* node, int layer)
+    {
+        if (!node) return;
+        layer++;
+        nodeCnt = max(layer, nodeCnt);
+        findNodeCount(node->left, layer);
+        findNodeCount(node->right, layer);
+    }
     int maxDepth(TreeNode* root) {
+        findNodeCount(root, 0);
+        return nodeCnt;
+    }
 
+    void mt(TreeNode* node)
+    {
+        if (!node) return;
+        swap(node->right, node->left);
+        mt(node->left);
+        mt(node->right);
+    }
+    TreeNode* mirrorTree(TreeNode* root) {
+        if (!root) return nullptr;
+        TreeNode* temp = root->left;
+        root->left = mirrorTree(root->right);
+        root->right = mirrorTree(temp);
+        return root;
     }
 };
 

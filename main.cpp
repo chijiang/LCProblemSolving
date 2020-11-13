@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <algorithm>
 #include <math.h>
+#include <unordered_set>
 
 using namespace std;
 
@@ -73,6 +74,21 @@ public:
             temp->next = temp;
         }
     }
+};
+
+struct ListNode {
+    int val;
+    ListNode *next;
+    ListNode() : val(0), next(nullptr) {}
+    ListNode(int x) : val(x), next(nullptr) {}
+    ListNode(int x, ListNode *next) : val(x), next(next) {}
+};
+
+struct TreeNode {
+    int val;
+    TreeNode *left;
+    TreeNode *right;
+    TreeNode(int x) : val(x), left(NULL), right(NULL) {}
 };
 
 class Solution
@@ -268,6 +284,65 @@ public:
         }
         return ret;
     }
+
+    int countVowelStrings(int n) {
+        vector <vector <int>> dp(n+1, vector<int>(5));
+        for (int i = 0; i < 5; i++) dp[1][i] = 1;
+        for (int i = 2; i<n+1; i++)
+        {
+            dp[i][0] = dp[i-1][0] + dp[i-1][1] + dp[i-1][2] + dp[i-1][3] + dp[i-1][4]; // ended with letter "u";
+            dp[i][1] = dp[i-1][1] + dp[i-1][2] + dp[i-1][3] + dp[i-1][4]; // ended with letter "o";
+            dp[i][2] = dp[i-1][2] + dp[i-1][3] + dp[i-1][4]; // ended with letter "i";
+            dp[i][3] = dp[i-1][3] + dp[i-1][4]; // ended with letter "e";
+            dp[i][4] = dp[i-1][4]; // ended with letter "a";
+        }
+        return dp[n][0] + dp[n][1] + dp[n][2] + dp[n][3] + dp[n][4];
+    }
+
+    vector<int> countBits(int num) {
+        vector<int> ret;
+        ret.emplace_back(0);
+        for (int i=1; i < num+1; i++)
+        {
+            if (i%2) 
+            {
+                ret.emplace_back(ret[i-1]+1);
+            }
+            else
+            {
+                ret.emplace_back(ret[i/2]);
+            }
+        }
+        return ret;
+    }
+
+    ListNode* oddEvenList(ListNode* head) {
+        if (!head) return head;
+        ListNode* evenHead = head->next;
+        ListNode* oddNode = head, *evenNode = evenHead;
+        for (;evenNode && evenNode->next;)
+        {
+            oddNode->next = evenNode->next;
+            oddNode = oddNode->next;
+            evenNode->next = oddNode->next;
+            evenNode = evenNode->next;
+        }
+        oddNode->next = evenHead;
+        return head;
+    }
+
+    vector<int> relativeSortArray(vector<int>& arr1, vector<int>& arr2) {
+        unordered_map<int, int> rank;
+        for (int i=0; i < arr2.size(); i++) rank[arr2[i]] = i-arr2.size();
+        sort(arr1.begin(), arr1.end(), [&](int x, int y){
+            return (rank.count(x) ? rank[x] : x) < (rank.count(y) ? rank[y] : y);
+        });
+        return arr1;
+    }
+
+    int maxDepth(TreeNode* root) {
+
+    }
 };
 
 int main(int argc, char** argv)
@@ -303,8 +378,8 @@ int main(int argc, char** argv)
 
     cout << s.longestPalindrome("cdbsbd") << endl;
 
-    vector <vector <int>> points{{1, 3}, {-2, 2}};
-    vector <vector <int>> clP = s.kClosest(points, 1);
-    for (auto point : clP) for (auto val : point) cout << val << " ";
+    vector <int> testS = s.countBits(64);
+    for (int i: testS) cout << i << " ";
+    cout << endl;
     return 0;
 }
